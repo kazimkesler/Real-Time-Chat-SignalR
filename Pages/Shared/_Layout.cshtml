@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RealTimeChat</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script>
+        $(document).ready(_ => {
+            const connection = new signalR.HubConnectionBuilder().withUrl('https://localhost:44343/' + 'ChattingHub').withAutomaticReconnect().build(); //Dinamik olacak
+            connection.start();
+
+            $("#sendMessage").click(_ => connection.invoke("SendMessageAsync", $("#message").val()).catch(error => console.log(error)));
+            $("#sendPrivateMessage").click(_ => connection.invoke("SendPrivateMessageAsync", $("#privateMessage").val(), $("#users").val()).catch(error => console.log(error)));
+
+            $("#message").keypress(function (e) {
+                if (e.keyCode == 13) {
+                    $("#sendMessage").trigger("click");
+                    $(this).val("");
+                }
+            });
+            $("#privateMessage").keypress(function (e) {
+                if (e.keyCode == 13) {
+                    $("#sendPrivateMessage").trigger("click");
+                    $(this).val("");
+                }
+            });
+            
+            $("#register").click(_ => {
+                connection.invoke("register", $("#nick").val());
+            });
+
+            connection.on("receiveMessage", (nick, message) => {
+                $("#messages").append(`<li class="list-group-item">${nick}: ${message}`).append("</li>");
+            });
+
+            connection.on("receivePrivateMessage", (nick, message) => {
+                $("#privateMessages").append(`<li class="list-group-item">${nick}: ${message}`).append("</li>");
+            });
+
+            connection.on("clientList", data => {
+                debugger
+                let list = $("#users")
+                list.html("");
+                $.each(data, (index, item) => {
+                    list.append(`<option value="${item.nick}">${item.nick}</option>`);
+                });
+            });
+
+            connection.onreconnecting(error => {
+                alert("yeniden bağlanılıyor");
+                consol.log(error);
+            });
+
+            connection.onreconnected(connectionId => {
+                alert("yeniden bağlanıldı");
+                consol.log(connectionId);
+            });
+            
+            connection.onclose(connectionId => {
+                alert("başarısız");
+                consol.log(connectionId);
+            });
+            
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">RealTimeChat</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - RealTimeChat - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

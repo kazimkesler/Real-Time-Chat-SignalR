@@ -1,0 +1,34 @@
+﻿@page
+@model IndexModel
+@{
+	ViewData["Title"] = "Home page";
+}
+<h1>Users</h1>
+<div class="row justify-content-between mb-4">
+	<div class="col-6">
+		<input id="nick" class="form-control" type="text" />
+		<input id="register" class="form-control" type="button" value="register" />
+	</div>
+	<div class="col-6">
+		<div>
+			<select id="users" class="form-control">
+			</select>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-6">
+		<h1>Messages</h1>
+		<input id="message" class="form-control" type="text" />
+		<input id="sendMessage" class="form-control" type="button" value="send" />
+		<ul id="messages" class="list-group list-group-flush">
+		</ul>
+	</div>
+	<div class="col-6">
+		<h1>Private Messages</h1>
+		<input id="privateMessage" class="form-control" type="text" />
+		<input id="sendPrivateMessage" class="form-control" type="button" value="send" />
+		<ul id="privateMessages" class="list-group list-group-flush">
+		</ul>
+	</div>
+</div>
