@@ -8,6 +8,6 @@ namespace RealTimeChat.Hubs
         Task Register(string nick);
         Task ReceiveMessage(string nick, string message);
         Task ReceivePrivateMessage(string nick, string message);
-        Task ClientList(List<User> clients);
+        Task ClientList(List<string> clients);
     }
 }

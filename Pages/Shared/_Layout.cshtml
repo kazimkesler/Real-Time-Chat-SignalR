@@ -10,7 +10,8 @@
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script>
         $(document).ready(_ => {
-            const connection = new signalR.HubConnectionBuilder().withUrl('https://localhost:44343/' + 'ChattingHub').withAutomaticReconnect().build(); //Dinamik olacak
+            let encodeHtml = content => $("<div></div>").html(content).text();
+            const connection = new signalR.HubConnectionBuilder().withUrl('/ChattingHub').withAutomaticReconnect().build(); //Dinamik olacak
             connection.start();
 
             $("#sendMessage").click(_ => connection.invoke("SendMessageAsync", $("#message").val()).catch(error => console.log(error)));
@@ -27,6 +28,11 @@
                     $("#sendPrivateMessage").trigger("click");
                     $(this).val("");
                 }
+            });   
+            $("#nick").keypress(function (e) {
+                if (e.keyCode == 13) {
+                    $("#register").trigger("click");
+                }
             });
             
             $("#register").click(_ => {
@@ -34,34 +40,34 @@
             });
 
             connection.on("receiveMessage", (nick, message) => {
-                $("#messages").append(`<li class="list-group-item">${nick}: ${message}`).append("</li>");
+                $("#messages").append(`<li class="list-group-item">${encodeHtml(nick)}: ${encodeHtml(message)}`).append("</li>");
             });
 
             connection.on("receivePrivateMessage", (nick, message) => {
-                $("#privateMessages").append(`<li class="list-group-item">${nick}: ${message}`).append("</li>");
+                $("#privateMessages").append(`<li class="list-group-item">${encodeHtml(nick)}: ${encodeHtml(message)}`).append("</li>");
             });
 
             connection.on("clientList", data => {
-                debugger
                 let list = $("#users")
                 list.html("");
                 $.each(data, (index, item) => {
-                    list.append(`<option value="${item.nick}">${item.nick}</option>`);
+                    list.append(`<option value="${encodeHtml(item)}">${encodeHtml(item)}</option>`);
                 });
+                $("#usersCount").val("Count: " + data.length);
             });
 
             connection.onreconnecting(error => {
-                alert("yeniden bağlanılıyor");
+                alert("reconnecting");
                 consol.log(error);
             });
 
             connection.onreconnected(connectionId => {
-                alert("yeniden bağlanıldı");
+                alert("reconnected");
                 consol.log(connectionId);
             });
             
             connection.onclose(connectionId => {
-                alert("başarısız");
+                alert("fail");
                 consol.log(connectionId);
             });
             

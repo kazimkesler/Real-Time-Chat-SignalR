@@ -17,7 +17,7 @@ namespace RealTimeChat.Pages
 
         public void OnGet()
         {
-            _hubContext.Clients.All.ReceiveMessage("Server", "Bir kullanıcı sisteme girdi.");
+            _hubContext.Clients.All.ReceiveMessage("Server", "an user has joined.");
         }
     }
 }
